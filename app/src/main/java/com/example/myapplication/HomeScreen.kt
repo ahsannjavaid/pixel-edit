@@ -47,6 +47,7 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import java.io.IOException
+import java.io.File
 import java.io.OutputStream
 
 @Composable
@@ -95,7 +96,7 @@ fun HomeScreen() {
             }
 
             Button(onClick = {
-                saveBitmapToFile(context, bitmap)
+                 saveBitmapToFile(context, bitmap)
             }) {
                 Text("Save")
             }
