@@ -1,0 +1,117 @@
+// Main
+Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(top = 100.dp)
+    ) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap?.asImageBitmap()!!,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.Blue)
+                    .size(150.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Blue,
+                        shape = CircleShape
+                    )
+
+            )
+        }
+        else {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_person_24),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.Blue)
+                    .size(150.dp)
+
+            )
+        }
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 330.dp, start = 100.dp)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.baseline_photo_camera_24),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(Color.Gray)
+                .size(50.dp)
+                .padding(10.dp)
+                .clickable {
+                    val cropOption = CropImageContractOptions(uriContent, CropImageOptions())
+                    imageCropLauncher.launch(cropOption)
+                }
+
+        )
+    }
+
+// Ali's
+Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.DarkGray),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxHeight(0.1f)
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { }) {
+                Text("Back")
+            }
+
+            Button(onClick = { }) {
+                Text("Save")
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .background(Color.DarkGray),
+        ) {
+            Image(
+                bitmap = bitmap!!.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxHeight(0.1f)
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { }) {
+                Text("Crop")
+            }
+
+            Button(onClick = { }) {
+                Text("Polygon Crop")
+            }
+        }
+    }
