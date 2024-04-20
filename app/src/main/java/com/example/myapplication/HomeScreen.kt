@@ -1,10 +1,12 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +42,7 @@ import com.canhub.cropper.CropImage.CancelledResult.uriContent
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import java.io.OutputStream
 
 @Composable
 fun HomeScreen() {
@@ -86,7 +89,9 @@ fun HomeScreen() {
                 Text("Back")
             }
 
-            Button(onClick = { }) {
+            Button(onClick = {
+                saveBitmapToFile(context, bitmap)
+            }) {
                 Text("Save")
             }
         }
@@ -105,17 +110,6 @@ fun HomeScreen() {
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-            /*else {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_person_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.Blue)
-                    .size(150.dp)
-
-                )
-            }*/
         }
 
         Row(
@@ -137,6 +131,21 @@ fun HomeScreen() {
             Button(onClick = { }) {
                 Text("Polygon Crop")
             }
+        }
+    }
+}
+
+private fun saveBitmapToFile(context: Context, bitmap: Bitmap?) {
+    bitmap?.let {
+        val fileName = "cropped_image.jpg"
+        try {
+            context.openFileOutput(fileName, Context.MODE_PRIVATE).use { outputStream ->
+                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            }
+            Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
         }
     }
 }
