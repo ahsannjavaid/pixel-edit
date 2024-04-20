@@ -1,11 +1,15 @@
 package com.example.myapplication
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
@@ -42,6 +46,7 @@ import com.canhub.cropper.CropImage.CancelledResult.uriContent
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import java.io.IOException
 import java.io.OutputStream
 
 @Composable
@@ -136,16 +141,47 @@ fun HomeScreen() {
 }
 
 private fun saveBitmapToFile(context: Context, bitmap: Bitmap?) {
-    bitmap?.let {
-        val fileName = "cropped_image.jpg"
-        try {
-            context.openFileOutput(fileName, Context.MODE_PRIVATE).use { outputStream ->
-                it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+    bitmap?.let { bmp ->
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "cropped_image_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/Stickers")
             }
-            Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
+        }
+
+        val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        if (uri == null) {
+            Log.e("SaveImage", "Failed to create new MediaStore record.")
+            return
+        }
+
+        try {
+            context.contentResolver.openOutputStream(uri).use { outputStream ->
+                if (outputStream == null) {
+                    Log.e("SaveImage", "Failed to get output stream.")
+                    return
+                }
+                if (!bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
+                    Log.e("SaveImage", "Failed to save bitmap.")
+                    return
+                }
+                outputStream?.flush()
+                outputStream?.close()
+            }
+            Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
+
+            // Broadcasting to make the image available in the gallery immediately
+            val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            mediaScanIntent.data = uri
+            context.sendBroadcast(mediaScanIntent)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SaveImage", "Exception in saving image", e)
             Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
         }
+    } ?: run {
+        Toast.makeText(context, "Bitmap is null", Toast.LENGTH_SHORT).show()
     }
 }
+
+
