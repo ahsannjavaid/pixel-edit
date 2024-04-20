@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import com.canhub.cropper.CropImage.CancelledResult.uriContent
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import java.io.File
 import java.io.OutputStream
 
 @Composable
@@ -90,7 +92,8 @@ fun HomeScreen() {
             }
 
             Button(onClick = {
-                saveBitmapToFile(context, bitmap)
+                val savedImagePath = saveBitmapToFile(context, bitmap)
+                Log.d("SavedImagePath", savedImagePath ?: "Image not saved")
             }) {
                 Text("Save")
             }
@@ -135,17 +138,20 @@ fun HomeScreen() {
     }
 }
 
-private fun saveBitmapToFile(context: Context, bitmap: Bitmap?) {
-    bitmap?.let {
+private fun saveBitmapToFile(context: Context, bitmap: Bitmap?): String? {
+    return bitmap?.let {
         val fileName = "cropped_image.jpg"
         try {
             context.openFileOutput(fileName, Context.MODE_PRIVATE).use { outputStream ->
                 it.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
             }
+            val filePath = File(context.filesDir, fileName).absolutePath
             Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
+            filePath
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, "Failed to save image", Toast.LENGTH_SHORT).show()
+            null
         }
     }
 }
