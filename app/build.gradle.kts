@@ -68,4 +68,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
+    implementation ("androidx.compose.ui:ui:1.6.6")
 }
